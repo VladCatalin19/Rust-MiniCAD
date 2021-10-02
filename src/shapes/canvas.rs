@@ -10,7 +10,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn new(height: u32, width: u32, color: Color) -> Canvas {
+    pub fn new(height: u32, width: u32, color: Color) -> Self {
         return Canvas{height: height, width: width, color: color};
     }
 

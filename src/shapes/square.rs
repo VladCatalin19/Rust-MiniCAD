@@ -13,7 +13,7 @@ pub struct Square {
 impl Square {
     pub fn new(top_left: Point, side: u32,
            outline_color: Color, fill_color: Color)
-        -> Square {
+        -> Self {
         return Square{top_left: top_left, side: side,
                       outline_color: outline_color, fill_color: fill_color};
     }

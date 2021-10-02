@@ -10,7 +10,7 @@ pub struct Line {
 }
 
 impl Line {
-    pub fn new(p0: Point, p1: Point, color: Color) -> Line {
+    pub fn new(p0: Point, p1: Point, color: Color) -> Self {
         return Line{p0: p0, p1: p1, color: color};
     }
 

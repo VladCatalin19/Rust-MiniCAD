@@ -14,7 +14,7 @@ impl Circle {
     pub fn new(center: Point, radius: u32,
            outline_color: Color,
            fill_color: Color)
-    -> Circle {
+    -> Self {
 
         return Circle{center: center, radius: radius,
                       outline_color: outline_color, fill_color: fill_color};

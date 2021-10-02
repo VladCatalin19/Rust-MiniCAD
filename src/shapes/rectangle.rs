@@ -13,7 +13,7 @@ pub struct Rectangle {
 
 impl Rectangle {
     pub fn new(top_left: Point, height: u32, width: u32, outline_color: Color, fill_color: Color)
-    -> Rectangle {
+    -> Self {
         return Rectangle{top_left: top_left, height: height, width: width,
                          outline_color: outline_color, fill_color: fill_color};
     }

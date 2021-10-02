@@ -12,7 +12,7 @@ pub struct Polygon {
 }
 
 impl Polygon {
-    pub fn new(points: Vec<Point>, outline_color: Color, fill_color: Color) -> Polygon {
+    pub fn new(points: Vec<Point>, outline_color: Color, fill_color: Color) -> Self {
         return Polygon{points: points, outline_color: outline_color, fill_color: fill_color};
     }
 
