@@ -1,31 +1,30 @@
 
-use crate::shapes::shape::Shape;
-
-mod utils;
-mod shapes;
+mod application;
+mod shape_factory;
 mod shape_visitor;
+mod shapes;
+mod utils;
 
+use std::env;
+use std::vec::Vec;
+use application::application::Application;
+
+// http://elf.cs.pub.ro/poo/arhiva/teme/2017/tema2
 fn main() {
-    let circle_center = utils::point::Point::new(0, 0);
-    let circle_radius: u32 = 30;
-    let circle_color = utils::color::Color::new(125, 125, 125, 125);
-    let circle = shapes::circle::Circle::new(circle_center, circle_radius, circle_color, circle_color);
+    let args: Vec<String> = env::args().collect();
 
-    let mut print_visitor = shape_visitor::print_shape_visitor::PrintShapeVisitor::new();
-
-    circle.accept(&mut print_visitor);
-}
-
-
-/*
-use std::io::{BufRead, BufReader};
-use std::fs::File;
-
-let reader = BufReader::new(File::open("file.txt").expect("Cannot open file.txt"));
-
-for line in reader.lines() {
-    for word in line.unwrap().split_whitespace() {
-        println!("word '{}'", word);
+    if args.len() != 3 {
+        println!("Usage: {} <input shapes file> <output image path>", args[0]);
+        return;
     }
+
+    let input_file = &args[1];
+    let output_file = &args[2];
+    match Application::run(&input_file, &output_file) {
+        Ok(_) => (),
+        Err(err) => {
+            eprintln!("Error: {}", err);
+            return;
+        }
+    };
 }
-*/
