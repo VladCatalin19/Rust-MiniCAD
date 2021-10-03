@@ -12,7 +12,7 @@ pub struct Diamond {
 }
 
 impl Diamond {
-    fn new(center: Point, horizontal_diagonal: u32, vertical_diagonal: u32,
+    pub fn new(center: Point, horizontal_diagonal: u32, vertical_diagonal: u32,
            outline_color: Color, fill_color: Color)
     -> Self {
         return Diamond{center: center,

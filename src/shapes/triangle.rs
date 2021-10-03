@@ -12,7 +12,7 @@ pub struct Triangle {
 }
 
 impl Triangle {
-    fn new(p0: Point, p1: Point, p2: Point, outline_color: Color, fill_color: Color)
+    pub fn new(p0: Point, p1: Point, p2: Point, outline_color: Color, fill_color: Color)
     -> Self {
         return Triangle{p0: p0, p1: p1, p2: p2,
                         outline_color: outline_color, fill_color: fill_color};
