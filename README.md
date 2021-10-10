@@ -37,4 +37,4 @@ POLYGON 4 520 810 560 700 650 610 625 725 #f442ee 100 #f442ee 100
 ```
 
 ### Output image:
-
+![cat](output/cat.png)
