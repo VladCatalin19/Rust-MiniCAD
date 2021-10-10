@@ -22,7 +22,7 @@ impl Square {
         return self.top_left;
     }
 
-    pub fn get_width(&self) -> u32 {
+    pub fn get_side(&self) -> u32 {
         return self.side;
     }
 
