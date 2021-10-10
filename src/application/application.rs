@@ -9,49 +9,54 @@ use std::error::Error;
 use crate::shape_factory::shape_factory::ShapeFactory;
 use crate::utils::parse_error::ParseError;
 
-use crate::shape_visitor::print_shape_visitor::PrintShapeVisitor;
+use crate::shape_visitor::draw_shape_visitor::DrawShapeVisitor;
 
 pub struct Application {}
 
 impl Application {
     pub fn run(input_file: &String, output_file: &String) -> Result<(), Box<dyn Error>> {
-        let shapes = match read_shapes(&input_file) {
-            Ok(shapes_vec) => shapes_vec,
-            Err(err) => return Err(err)
-        };
+        let shapes = read_shapes(&input_file)?;
+        let draw_visitor = draw_shapes(&shapes);
+        write_image_to_file(output_file, &draw_visitor)?;
         return Ok(());
     }
 }
 
 fn read_shapes(input_file: &String) -> Result<Vec<Box<dyn Shape>>, Box<dyn Error>> {
-    let file = match open_file(input_file) {
-        Ok(res) => res,
-        Err(err) => return Err(err)
-    };
+    let file = open_file(input_file)?;
 
     let buf_reader = BufReader::new(file);
     let mut lines = buf_reader.lines();
 
-    let shapes_number = match read_shapes_number(&mut lines) {
-        Ok(num) => num,
-        Err(err) => return Err(err)
-    };
+    let shapes_number = read_shapes_number(&mut lines)?;
 
     let mut shapes: Vec<Box<dyn Shape>> = Vec::new();
     shapes.reserve_exact(shapes_number);
 
-    let mut print_visitor = PrintShapeVisitor::new();
-
-    for line in lines {
-        let shape = match read_shape_from_line(line) {
-            Ok(shp) => shp,
-            Err(err) => return Err(err)
-        };
-        shape.accept(&mut print_visitor);
+    for _ in 0..shapes_number {
+        let line = read_line(&mut lines);
+        let shape = read_shape_from_line(line)?;
         shapes.push(shape);
     }
 
     return Ok(shapes);
+}
+
+fn draw_shapes(shapes: &Vec<Box<dyn Shape>>) -> DrawShapeVisitor
+{
+    let mut draw_visitor = DrawShapeVisitor::new();
+
+    for shape in shapes {
+        shape.accept(&mut draw_visitor);
+    }
+    return draw_visitor;
+}
+
+fn write_image_to_file(input_file: &String, draw_visitor: &DrawShapeVisitor) -> Result<(), Box<dyn Error>> {
+    return match draw_visitor.write_image(input_file) {
+        Ok(_) => Ok(()),
+        Err(err) => return Err(err)
+    };
 }
 
 fn open_file(input_file: &String) -> Result<File, Box<dyn Error>> {
@@ -66,7 +71,7 @@ fn open_file(input_file: &String) -> Result<File, Box<dyn Error>> {
 }
 
 fn read_shapes_number(lines: &mut Lines<BufReader<File>>) -> Result<usize, Box<dyn Error>> {
-    return match lines.nth(0) {
+    return match lines.next() {
         None => {
             let error_string = format!("Input file does not have at least one line");
             let error = ParseError::new(error_string);
@@ -87,6 +92,16 @@ fn read_shapes_number(lines: &mut Lines<BufReader<File>>) -> Result<usize, Box<d
                 return Err(Box::new(error));
             }
         }
+    };
+}
+
+fn read_line(lines: &mut Lines<BufReader<File>>) -> Result<String, std::io::Error> {
+    return match lines.next() {
+        None => {
+            let error_string = format!("No more lines to parse");
+            return Err(std::io::Error::new(std::io::ErrorKind::Other, error_string));
+        },
+        Some(some) => some
     };
 }
 

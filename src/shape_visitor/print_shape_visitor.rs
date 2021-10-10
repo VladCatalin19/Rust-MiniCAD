@@ -15,6 +15,7 @@ pub struct PrintShapeVisitor {
 }
 
 impl PrintShapeVisitor {
+    #[allow(dead_code)]
     pub fn new() -> Self {
         return PrintShapeVisitor{};
     }
