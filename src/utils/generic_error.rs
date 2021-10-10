@@ -3,20 +3,20 @@ use std::string::String;
 use std::error::Error;
 
 #[derive(Debug)]
-pub struct ParseError {
+pub struct GenericError {
     message: String
 }
 
-impl ParseError {
+impl GenericError {
     pub fn new(message: String) -> Self {
-        return ParseError{message: message};
+        return GenericError{message: message};
     }
 }
 
-impl std::fmt::Display for ParseError {
+impl std::fmt::Display for GenericError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         return write!(f, "{}", self.message);
     }
 }
 
-impl Error for ParseError {}
+impl Error for GenericError {}

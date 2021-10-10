@@ -5,6 +5,8 @@ use crate::utils::{point::Point, color::Color};
 use std::vec::Vec;
 use std::string::String;
 
+use std::error::Error;
+
 pub struct Polygon {
     points: Vec<Point>,
     outline_color: Color,
@@ -30,8 +32,8 @@ impl Polygon {
 }
 
 impl Shape for Polygon {
-    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) {
-        shape_visitor.visit_polygon(&self);
+    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) -> Result<(), Box<dyn Error>> {
+        return shape_visitor.visit_polygon(&self);
     }
 }
 

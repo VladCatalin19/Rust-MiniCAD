@@ -3,6 +3,8 @@ use crate::shapes::shape::Shape;
 use crate::shape_visitor::shape_visitor::ShapeVisitor;
 use crate::utils::{point::Point, color::Color};
 
+use std::error::Error;
+
 pub struct Circle {
     center: Point,
     radius: u32,
@@ -38,8 +40,8 @@ impl Circle {
 }
 
 impl Shape for Circle {
-    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) {
-        shape_visitor.visit_circle(&self);
+    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) -> Result<(), Box<dyn Error>> {
+        return shape_visitor.visit_circle(&self);
     }
 }
 

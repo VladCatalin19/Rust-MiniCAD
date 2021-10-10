@@ -3,6 +3,8 @@ use crate::shapes::shape::Shape;
 use crate::shape_visitor::shape_visitor::ShapeVisitor;
 use crate::utils::{point::Point, color::Color};
 
+use std::error::Error;
+
 pub struct Triangle {
     p0: Point,
     p1: Point,
@@ -40,8 +42,8 @@ impl Triangle {
 }
 
 impl Shape for Triangle {
-    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) {
-        shape_visitor.visit_triangle(&self);
+    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) -> Result<(), Box<dyn Error>> {
+        return shape_visitor.visit_triangle(&self);
     }
 }
 

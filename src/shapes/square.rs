@@ -3,6 +3,8 @@ use crate::shapes::shape::Shape;
 use crate::shape_visitor::shape_visitor::ShapeVisitor;
 use crate::utils::{point::Point, color::Color};
 
+use std::error::Error;
+
 pub struct Square {
     top_left: Point,
     side: u32,
@@ -36,8 +38,8 @@ impl Square {
 }
 
 impl Shape for Square {
-    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) {
-        shape_visitor.visit_square(&self);
+    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) -> Result<(), Box<dyn Error>> {
+        return shape_visitor.visit_square(&self);
     }
 }
 

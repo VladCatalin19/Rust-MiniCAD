@@ -3,6 +3,8 @@ use crate::shapes::shape::Shape;
 use crate::shape_visitor::shape_visitor::ShapeVisitor;
 use crate::utils::{point::Point, color::Color};
 
+use std::error::Error;
+
 pub struct Diamond {
     center: Point,
     horizontal_diagonal: u32,
@@ -44,8 +46,8 @@ impl Diamond {
 }
 
 impl Shape for Diamond {
-    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) {
-        shape_visitor.visit_diamond(&self);
+    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) -> Result<(), Box<dyn Error>> {
+        return shape_visitor.visit_diamond(&self);
     }
 }
 

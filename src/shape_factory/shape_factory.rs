@@ -9,7 +9,7 @@ use crate::shapes::{ shape::Shape,
                      square::Square,
                      triangle::Triangle };
 
-use crate::utils::{ parse_error::ParseError,
+use crate::utils::{ generic_error::GenericError,
                     color::Color,
                     point::Point };
 use std::string::String;
@@ -17,7 +17,7 @@ use std::str::SplitWhitespace;
 use std::error::Error;
 
 fn create_parse_error(name: String) -> Box<dyn Error> {
-    return Box::new(ParseError::new(name));
+    return Box::new(GenericError::new(name));
 }
 
 pub struct ShapeFactory {}
@@ -51,7 +51,7 @@ impl ShapeFactory {
         }
 
         let error_string = format!("Invalid line format: {}", line);
-        let error = ParseError::new(error_string);
+        let error = GenericError::new(error_string);
         return Err(Box::new(error));
     } 
 }

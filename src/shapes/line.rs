@@ -3,6 +3,8 @@ use crate::shapes::shape::Shape;
 use crate::shape_visitor::shape_visitor::ShapeVisitor;
 use crate::utils::{point::Point, color::Color};
 
+use std::error::Error;
+
 pub struct Line {
     p0: Point,
     p1: Point,
@@ -28,8 +30,8 @@ impl Line {
 }
 
 impl Shape for Line {
-    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) {
-        shape_visitor.visit_line(&self);
+    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) -> Result<(), Box<dyn Error>> {
+        return shape_visitor.visit_line(&self);
     }
 }
 

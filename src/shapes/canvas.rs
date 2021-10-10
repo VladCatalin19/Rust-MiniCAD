@@ -3,6 +3,8 @@ use crate::shapes::shape::Shape;
 use crate::shape_visitor::shape_visitor::ShapeVisitor;
 use crate::utils::color::Color;
 
+use std::error::Error;
+
 pub struct Canvas {
     height: u32,
     width: u32,
@@ -28,8 +30,8 @@ impl Canvas {
 }
 
 impl Shape for Canvas {
-    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) {
-        shape_visitor.visit_canvas(&self);
+    fn accept(&self, shape_visitor: &mut dyn ShapeVisitor) -> Result<(), Box<dyn Error>> {
+        return shape_visitor.visit_canvas(&self);
     }
 }
 
