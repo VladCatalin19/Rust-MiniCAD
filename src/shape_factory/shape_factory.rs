@@ -25,7 +25,7 @@ pub struct ShapeFactory {}
 impl ShapeFactory {
     pub fn parse_shape(line: &String) -> Result<Box<dyn Shape>, Box<dyn Error>> {
         let mut line_split_iterator = line.split_whitespace();
-        let first_element = match line_split_iterator.nth(0) {
+        let first_element = match line_split_iterator.next() {
             None => {
                 return Err(create_parse_error(format!("Line: {} could not be split by whitespaces", line)));
             },
@@ -57,7 +57,7 @@ impl ShapeFactory {
 }
 
 fn parse_color_hex(line_split: &mut SplitWhitespace, shape: &String) -> Result<[u8; 3], Box<dyn Error>> {
-    match line_split.nth(0) {
+    match line_split.next() {
         None => {
             return Err(create_parse_error(format!("{}'s color does not have rgb component", shape)));
         },
@@ -81,7 +81,7 @@ fn parse_color_hex(line_split: &mut SplitWhitespace, shape: &String) -> Result<[
 }
 
 fn parse_u8(line_split: &mut SplitWhitespace, name: &String, attribute: &String) -> Result<u8, Box<dyn Error>> {
-    match line_split.nth(0) {
+    match line_split.next() {
         None => {
             return Err(create_parse_error(format!("{} does not seem to have a {}", name, attribute)));
         },
@@ -95,7 +95,7 @@ fn parse_u8(line_split: &mut SplitWhitespace, name: &String, attribute: &String)
 }
 
 fn parse_i32(line_split: &mut SplitWhitespace, name: &String, attribute: &String) -> Result<i32, Box<dyn Error>> {
-    match line_split.nth(0) {
+    match line_split.next() {
         None => {
             return Err(create_parse_error(format!("{} does not seem to have a {}", name, attribute)));
         },
@@ -109,7 +109,7 @@ fn parse_i32(line_split: &mut SplitWhitespace, name: &String, attribute: &String
 }
 
 fn parse_u32(line_split: &mut SplitWhitespace, name: &String, attribute: &String) -> Result<u32, Box<dyn Error>> {
-    match line_split.nth(0) {
+    match line_split.next() {
         None => {
             return Err(create_parse_error(format!("{} does not seem to have a {}", name, attribute)));
         },
@@ -123,197 +123,86 @@ fn parse_u32(line_split: &mut SplitWhitespace, name: &String, attribute: &String
 }
 
 fn parse_color(line_split: &mut SplitWhitespace, shape: &String, attribute: &String) -> Result<Color, Box<dyn Error>>{
-    let [r, g, b] = match parse_color_hex(line_split, shape) {
-        Ok(res) => res,
-        Err(err) => return Err(err)
-    };
-
-    let a = match parse_u8(line_split, &format!("{}'s {}", shape, attribute), &String::from("alpha")) {
-        Ok(alpha) => alpha,
-        Err(err) => return Err(err)
-    };
+    let [r, g, b] = parse_color_hex(line_split, shape)?;
+    let a = parse_u8(line_split, &format!("{}'s {}", shape, attribute), &String::from("alpha"))?;
     return Ok(Color::new(r, g, b, a));
 }
 
 fn parse_point(line_split: &mut SplitWhitespace, shape: &String, attribute: &String) -> Result<Point, Box<dyn Error>> {
     let point_name = format!("{}.{}", shape, attribute);
-    let x = match parse_i32(line_split, &point_name, &String::from("x")) {
-        Ok(coord) => coord,
-        Err(err) => return Err(err)
-    };
-    let y = match parse_i32(line_split, &point_name, &String::from("y")) {
-        Ok(coord) => coord,
-        Err(err) => return Err(err)
-    };
+    let x = parse_i32(line_split, &point_name, &String::from("x"))?;
+    let y = parse_i32(line_split, &point_name, &String::from("y"))?;
     return Ok(Point::new(x, y));
 }
 
 fn parse_canvas(line_split: &mut SplitWhitespace) -> Result<Box<dyn Shape>, Box<dyn Error>> {
-    let height = match parse_u32(line_split, &String::from("Canvas"), &String::from("height")) {
-        Ok(h) => h,
-        Err(err) => return Err(err)
-    };
-    let width = match parse_u32(line_split, &String::from("Canvas"), &String::from("width")) {
-        Ok(w) => w,
-        Err(err) => return Err(err)
-    };
-    let color = match parse_color(line_split, &String::from("Canvas"), &String::from("color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
+    let height = parse_u32(line_split, &String::from("Canvas"), &String::from("height"))?;
+    let width = parse_u32(line_split, &String::from("Canvas"), &String::from("width"))?;
+    let color = parse_color(line_split, &String::from("Canvas"), &String::from("color"))?;
     return Ok(Box::new(Canvas::new(height, width, color)));
 }
 
 fn parse_line(line_split: &mut SplitWhitespace) -> Result<Box<dyn Shape>, Box<dyn Error>> {
-    let p0 = match parse_point(line_split, &String::from("Line"), &String::from("first point")) {
-        Ok(p) => p,
-        Err(err) => return Err(err)
-    };
-    let p1 = match parse_point(line_split, &String::from("Line"), &String::from("second point")) {
-        Ok(p) => p,
-        Err(err) => return Err(err)
-    };
-    let color = match parse_color(line_split, &String::from("Line"), &String::from("color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
+    let p0 = parse_point(line_split, &String::from("Line"), &String::from("first point"))?;
+    let p1 = parse_point(line_split, &String::from("Line"), &String::from("second point"))?;
+    let color = parse_color(line_split, &String::from("Line"), &String::from("color"))?;
     return Ok(Box::new(Line::new(p0, p1, color)));
 }
 
 fn parse_square(line_split: &mut SplitWhitespace) -> Result<Box<dyn Shape>, Box<dyn Error>> {
-    let top_left = match parse_point(line_split, &String::from("Square"), &String::from("top left")) {
-        Ok(p) => p,
-        Err(err) => return Err(err)
-    };
-    let side = match parse_u32(line_split, &String::from("Square"), &String::from("side")) {
-        Ok(s) => s,
-        Err(err) => return Err(err)
-    };
-    let outline_color = match parse_color(line_split, &String::from("Square"), &String::from("outline color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
-    let fill_color = match parse_color(line_split, &String::from("Square"), &String::from("fill color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
+    let top_left = parse_point(line_split, &String::from("Square"), &String::from("top left"))?;
+    let side = parse_u32(line_split, &String::from("Square"), &String::from("side"))?;
+    let outline_color = parse_color(line_split, &String::from("Square"), &String::from("outline color"))?;
+    let fill_color = parse_color(line_split, &String::from("Square"), &String::from("fill color"))?;
     return Ok(Box::new(Square::new(top_left, side, outline_color, fill_color)));
 }
 
 fn parse_rectangle(line_split: &mut SplitWhitespace) -> Result<Box<dyn Shape>, Box<dyn Error>> {
-    let top_left = match parse_point(line_split, &String::from("Rectangle"), &String::from("top left")) {
-        Ok(p) => p,
-        Err(err) => return Err(err)
-    };
-    let height = match parse_u32(line_split, &String::from("Rectangle"), &String::from("height")) {
-        Ok(s) => s,
-        Err(err) => return Err(err)
-    };
-    let width = match parse_u32(line_split, &String::from("Rectangle"), &String::from("width")) {
-        Ok(s) => s,
-        Err(err) => return Err(err)
-    };
-    let outline_color = match parse_color(line_split, &String::from("Rectangle"), &String::from("outline color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
-    let fill_color = match parse_color(line_split, &String::from("Rectangle"), &String::from("fill color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
+    let top_left = parse_point(line_split, &String::from("Rectangle"), &String::from("top left"))?;
+    let height = parse_u32(line_split, &String::from("Rectangle"), &String::from("height"))?;
+    let width = parse_u32(line_split, &String::from("Rectangle"), &String::from("width"))?;
+    let outline_color = parse_color(line_split, &String::from("Rectangle"), &String::from("outline color"))?;
+    let fill_color = parse_color(line_split, &String::from("Rectangle"), &String::from("fill color"))?;
     return Ok(Box::new(Rectangle::new(top_left, height, width, outline_color, fill_color)));
 }
 
 fn parse_circle(line_split: &mut SplitWhitespace) -> Result<Box<dyn Shape>, Box<dyn Error>> {
-    let center = match parse_point(line_split, &String::from("Circle"), &String::from("center")) {
-        Ok(p) => p,
-        Err(err) => return Err(err)
-    };
-    let radius = match parse_u32(line_split, &String::from("Circle"), &String::from("radius")) {
-        Ok(s) => s,
-        Err(err) => return Err(err)
-    };
-    let outline_color = match parse_color(line_split, &String::from("Circle"), &String::from("outline color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
-    let fill_color = match parse_color(line_split, &String::from("Circle"), &String::from("fill color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
+    let center = parse_point(line_split, &String::from("Circle"), &String::from("center"))?;
+    let radius = parse_u32(line_split, &String::from("Circle"), &String::from("radius"))?;
+    let outline_color = parse_color(line_split, &String::from("Circle"), &String::from("outline color"))?;
+    let fill_color = parse_color(line_split, &String::from("Circle"), &String::from("fill color"))?;
     return Ok(Box::new(Circle::new(center, radius, outline_color, fill_color)));
 }
 
 fn parse_triangle(line_split: &mut SplitWhitespace) -> Result<Box<dyn Shape>, Box<dyn Error>> {
-    let p0 = match parse_point(line_split, &String::from("Triangle"), &String::from("first point")) {
-        Ok(p) => p,
-        Err(err) => return Err(err)
-    };
-    let p1 = match parse_point(line_split, &String::from("Triangle"), &String::from("second point")) {
-        Ok(p) => p,
-        Err(err) => return Err(err)
-    };
-    let p2 = match parse_point(line_split, &String::from("Triangle"), &String::from("third point")) {
-        Ok(p) => p,
-        Err(err) => return Err(err)
-    };
-    let outline_color = match parse_color(line_split, &String::from("Triangle"), &String::from("outline color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
-    let fill_color = match parse_color(line_split, &String::from("Triangle"), &String::from("fill color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
+    let p0 = parse_point(line_split, &String::from("Triangle"), &String::from("first point"))?;
+    let p1 = parse_point(line_split, &String::from("Triangle"), &String::from("second point"))?;
+    let p2 = parse_point(line_split, &String::from("Triangle"), &String::from("third point"))?;
+    let outline_color = parse_color(line_split, &String::from("Triangle"), &String::from("outline color"))?;
+    let fill_color = parse_color(line_split, &String::from("Triangle"), &String::from("fill color"))?;
     return Ok(Box::new(Triangle::new(p0, p1, p2, outline_color, fill_color)));
 }
 
 fn parse_diamond(line_split: &mut SplitWhitespace) -> Result<Box<dyn Shape>, Box<dyn Error>> {
-    let center = match parse_point(line_split, &String::from("Diamond"), &String::from("center")) {
-        Ok(p) => p,
-        Err(err) => return Err(err)
-    };
-    let horizontal_diagonal = match parse_u32(line_split, &String::from("Diamond"), &String::from("horizontal diagonal")) {
-        Ok(s) => s,
-        Err(err) => return Err(err)
-    };
-    let vertical_diagonal = match parse_u32(line_split, &String::from("Diamond"), &String::from("vertical diagonal")) {
-        Ok(s) => s,
-        Err(err) => return Err(err)
-    };
-    let outline_color = match parse_color(line_split, &String::from("Diamond"), &String::from("outline color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
-    let fill_color = match parse_color(line_split, &String::from("Diamond"), &String::from("fill color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
+    let center = parse_point(line_split, &String::from("Diamond"), &String::from("center"))?;
+    let horizontal_diagonal = parse_u32(line_split, &String::from("Diamond"), &String::from("horizontal diagonal"))?;
+    let vertical_diagonal = parse_u32(line_split, &String::from("Diamond"), &String::from("vertical diagonal"))?;
+    let outline_color = parse_color(line_split, &String::from("Diamond"), &String::from("outline color"))?;
+    let fill_color = parse_color(line_split, &String::from("Diamond"), &String::from("fill color"))?;
     return Ok(Box::new(Diamond::new(center, horizontal_diagonal, vertical_diagonal, outline_color, fill_color)));
 }
 
 fn parse_polygon(line_split: &mut SplitWhitespace) -> Result<Box<dyn Shape>, Box<dyn Error>> {
-    let points_number = match parse_u32(line_split, &String::from("Polygon"), &String::from("number of points")) {
-        Ok(n) => n,
-        Err(err) => return Err(err)
-    };
+    let points_number = parse_u32(line_split, &String::from("Polygon"), &String::from("number of points"))?;
+
     let mut points: Vec<Point> = Vec::new();
     points.reserve(points_number as usize);
 
     for point_index in 0..points_number {
-        let point = match parse_point(line_split, &String::from("Polygon"), &format!("point {}", point_index)) {
-            Ok(p) => p,
-            Err(err) => return Err(err)
-        };
+        let point = parse_point(line_split, &String::from("Polygon"), &format!("point {}", point_index))?;
         points.push(point);
     }
-    let outline_color = match parse_color(line_split, &String::from("Polygon"), &String::from("outline color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
-    let fill_color = match parse_color(line_split, &String::from("Polygon"), &String::from("fill color")) {
-        Ok(c) => c,
-        Err(err) => return Err(err)
-    };
+    let outline_color = parse_color(line_split, &String::from("Polygon"), &String::from("outline color"))?;
+    let fill_color = parse_color(line_split, &String::from("Polygon"), &String::from("fill color"))?;
     return Ok(Box::new(Polygon::new(points, outline_color, fill_color)));
 }
